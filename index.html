@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Academic Performance System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="container">
+    <h1>Academic Performance Evaluation System</h1>
+    <h3>Institute: {{ institute }}</h3>
+    <h3>Class: {{ class_name }}</h3>
+
+    <!-- Add Student Form -->
+    <div class="card">
+        <h2>Add Student</h2>
+        <form method="POST" action="/add">
+            <input type="text" name="name" placeholder="Student Name" required>
+            <input type="text" name="father" placeholder="Father's Name" required>
+            <input type="text" name="roll" placeholder="Roll Number" required>
+
+            <h3>Enter Marks</h3>
+            <div class="subjects">
+                {% for subject in subjects %}
+                <input type="number" name="{{ subject }}" placeholder="{{ subject }}" min="0" max="100" required>
+                {% endfor %}
+            </div>
+
+            <button type="submit" class="btn">Add Student</button>
+        </form>
+    </div>
+
+    <!-- Search Section -->
+    <div class="card">
+        <h2>Search Student</h2>
+        <form method="GET" action="/search">
+            <input type="text" name="name" placeholder="Search by Name">
+            <input type="text" name="father" placeholder="Search by Father's Name">
+            <input type="text" name="roll" placeholder="Search by Roll Number">
+            <button class="btn search-btn" type="submit">Search</button>
+        </form>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="card center">
+        <a href="/average"><button class="btn">Show Class Average</button></a>
+        <a href="/topper"><button class="btn">Find Topper</button></a>
+    </div>
+
+    <!-- Class Average Display -->
+    {% if average is not none %}
+    <div class="card">
+        <h3>Class Average: {{ average }}%</h3>
+    </div>
+    {% endif %}
+
+    <!-- Topper Display -->
+    {% if topper %}
+    <div class="card">
+        <h3>Topper: {{ topper.name }} (Father: {{ topper.father }}) - {{ topper.percentage }}%</h3>
+    </div>
+    {% endif %}
+
+    <!-- Student Table -->
+    <div class="card">
+        <h2>Student Records</h2>
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Father's Name</th>
+                <th>Roll</th>
+                <th>Percentage</th>
+                <th>Grade</th>
+                <th>GPA</th>
+                <th>Report Card</th>
+            </tr>
+            {% for student in students %}
+            <tr {% if student.highlight %} style="background-color: #fff3cd;" {% endif %}>
+                <td>{{ student.name }}</td>
+                <td>{{ student.father }}</td>
+                <td>{{ student.roll }}</td>
+                <td>{{ student.percentage }}%</td>
+                <td>
+                    {% if student.grade == 'A+' %}
+                        <span class="grade-Aplus">{{ student.grade }}</span>
+                    {% elif student.grade == 'A' %}
+                        <span class="grade-A">{{ student.grade }}</span>
+                    {% elif student.grade == 'B' %}
+                        <span class="grade-B">{{ student.grade }}</span>
+                    {% elif student.grade == 'C' %}
+                        <span class="grade-C">{{ student.grade }}</span>
+                    {% elif student.grade == 'D' %}
+                        <span class="grade-D">{{ student.grade }}</span>
+                    {% elif student.grade == 'Fail' %}
+                        <span class="grade-Fail">{{ student.grade }}</span>
+                    {% else %}
+                        <span>{{ student.grade }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ student.gpa }}</td>
+                <td>
+                    <a href="/report/{{ student.roll }}"><button class="btn">View Report Card</button></a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <!-- Chart Container -->
+    <div class="card">
+        <h2>Class Performance Chart</h2>
+        <canvas id="classChart" width="400" height="200"></canvas>
+    </div>
+</div>
+
+<!-- Chart.js script -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    var subjects = {{ subjects | tojson | safe }} || [];
+    var average_per_subject = {{ average_per_subject | tojson | safe }} || [];
+
+    if(subjects.length && average_per_subject.length){
+        var ctx = document.getElementById('classChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: subjects,
+                datasets: [{
+                    label: 'Class Average Marks',
+                    data: average_per_subject,
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
