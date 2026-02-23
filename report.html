@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Report Card - {{ student.name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="container">
+    <div class="card">
+        <h2>Report Card</h2>
+        <h3>Institute: {{ institute }}</h3>
+        <h3>Class: {{ class_name }}</h3>
+        <h3>Student: {{ student.name }}</h3>
+        <h4>Father: {{ student.father }}</h4>
+        <h4>Roll Number: {{ student.roll }}</h4>
+
+        <table>
+            <tr><th>Subject</th><th>Marks</th></tr>
+            {% for i in range(subjects|length) %}
+            <tr>
+                <td>{{ subjects[i] }}</td>
+                <td>{{ student.marks[i] }}</td>
+            </tr>
+            {% endfor %}
+            <tr><th>Total</th><td>{{ student.total }}</td></tr>
+            <tr><th>Percentage</th><td>{{ student.percentage }}%</td></tr>
+            <tr><th>Grade</th>
+                <td>
+                    {% if student.grade == 'A+' %}<span class="grade-Aplus">{{ student.grade }}</span>
+                    {% elif student.grade == 'A' %}<span class="grade-A">{{ student.grade }}</span>
+                    {% elif student.grade == 'B' %}<span class="grade-B">{{ student.grade }}</span>
+                    {% elif student.grade == 'C' %}<span class="grade-C">{{ student.grade }}</span>
+                    {% elif student.grade == 'D' %}<span class="grade-D">{{ student.grade }}</span>
+                    {% elif student.grade == 'Fail' %}<span class="grade-Fail">{{ student.grade }}</span>
+                    {% else %}{{ student.grade }}{% endif %}
+                </td>
+            </tr>
+            <tr><th>GPA</th><td>{{ student.gpa }}</td></tr>
+        </table>
+
+        {% if not pdf %}
+        <a href="/report/{{ student.roll }}/pdf"><button class="btn">Download PDF</button></a>
+        {% endif %}
+        <a href="/"><button class="btn">Back to Home</button></a>
+    </div>
+</div>
+</body>
+</html>
